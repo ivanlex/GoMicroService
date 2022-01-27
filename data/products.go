@@ -8,14 +8,14 @@ import (
 )
 
 type Product struct {
-	ID          int     "json:\"id\""
-	Name        string  "json:\"name\""
-	Description string  "json:\"description\""
-	Price       float32 "json:\"price\""
-	SKU         string  "json:\"sku\""
-	CreatedOn   string  "json:\"-\""
-	UpdatedOn   string  "json:\"-\""
-	DeletedO    string  "json:\"-\""
+	ID          int     `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Price       float32 `json:"price"`
+	SKU         string  `json:"sku"`
+	CreatedOn   string  `json:"-"`
+	UpdatedOn   string  `json:"-"`
+	DeletedO    string  `json:"-"`
 }
 
 type Products []*Product
