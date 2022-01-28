@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"github.com/gorilla/mux"
 	"github.com/kevin/working/data"
 	"log"
@@ -31,13 +32,9 @@ func (p *Products) GetProducts(writer http.ResponseWriter, request *http.Request
 func (p *Products) AddProduct(writer http.ResponseWriter, request *http.Request) {
 	p.l.Println("Handle Post Products")
 
-	prod := &data.Product{}
-	err := prod.FromJSON(request.Body)
-	if err != nil {
-		http.Error(writer, "Unable to unmarshal json", http.StatusBadRequest)
-	}
+	prod:=request.Context().Value(KeyProduct{}).(data.Product)
 
-	data.AddProduct(prod)
+	data.AddProduct(&prod)
 }
 
 func (p *Products) UpdateProducts(writer http.ResponseWriter, request *http.Request) {
@@ -50,13 +47,9 @@ func (p *Products) UpdateProducts(writer http.ResponseWriter, request *http.Requ
 
 	p.l.Println("Handle PUT Products")
 
-	prod := &data.Product{}
-	err = prod.FromJSON(request.Body)
-	if err != nil {
-		http.Error(writer, "Unable to unmarshal json" + err.Error(), http.StatusBadRequest)
-	}
+	prod:=request.Context().Value(KeyProduct{}).(data.Product)
 
-	err = data.UpdateProduct(id, prod)
+	err = data.UpdateProduct(id, &prod)
 
 	if err == data.ErrProductNotFound {
 		http.Error(writer, "Product not found", http.StatusNotFound)
@@ -67,4 +60,21 @@ func (p *Products) UpdateProducts(writer http.ResponseWriter, request *http.Requ
 		http.Error(writer, "Product not found", http.StatusInternalServerError)
 		return
 	}
+}
+
+type KeyProduct struct{}
+
+func (p Products) MiddlewareProductValidation(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter,request *http.Request){
+		prod := data.Product{}
+		err := prod.FromJSON(request.Body)
+		if err != nil {
+			http.Error(writer, "Unable to unmarshal json" + err.Error(), http.StatusBadRequest)
+		}
+
+		ctx := context.WithValue(request.Context(), KeyProduct{}, prod)
+		req := request.WithContext(ctx)
+
+		next.ServeHTTP(writer,req)
+	})
 }
