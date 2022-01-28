@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/kevin/working/data"
 	"log"
@@ -65,11 +66,26 @@ func (p *Products) UpdateProducts(writer http.ResponseWriter, request *http.Requ
 type KeyProduct struct{}
 
 func (p Products) MiddlewareProductValidation(next http.Handler) http.Handler {
+	p.l.Println("Logging middleware")
+
 	return http.HandlerFunc(func(writer http.ResponseWriter,request *http.Request){
 		prod := data.Product{}
 		err := prod.FromJSON(request.Body)
-		if err != nil {
-			http.Error(writer, "Unable to unmarshal json" + err.Error(), http.StatusBadRequest)
+			if err != nil {
+			p.l.Println("[ERROR] Unable to unmarshal json",err)
+			http.Error(writer, "Error reading product", http.StatusBadRequest)
+			return
+		}
+
+		err = prod.Validate()
+		if err != nil{
+			p.l.Println("[ERROR] Validating product",err)
+			http.Error(
+				writer,
+				fmt.Sprintf("Error Validating product %s", err.Error()),
+				http.StatusBadRequest,
+				)
+			return
 		}
 
 		ctx := context.WithValue(request.Context(), KeyProduct{}, prod)

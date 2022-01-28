@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gorilla/mux"
 	"github.com/kevin/working/handlers"
+	"github.com/nicholasjackson/env"
 	"log"
 	"net/http"
 	"os"
@@ -11,10 +12,17 @@ import (
 	"time"
 )
 
+var bindAddress = env.String("BIND_ADDRESS",false,":9090","Bind address for the server")
+
 func main() {
+	env.Parse()
+
 	l := log.New(os.Stdout, "product-api", log.LstdFlags)
+
+	//create product handler
 	ph := handlers.NewProducts(l)
 
+	//create a new serve mux and register handlers
 	sm := mux.NewRouter()
 
 	getRouter := sm.Methods(http.MethodGet).Subrouter()
@@ -29,9 +37,9 @@ func main() {
 	postRouter.Use(ph.MiddlewareProductValidation)
 
 	s := &http.Server{
-		Addr: ":9090",
+		Addr:  *bindAddress,
 		Handler: sm,
-		IdleTimeout: 120 * time.Second,
+		IdleTimeout: 5 * time.Second,
 		ReadTimeout: 1 * time.Second,
 		WriteTimeout: 1 * time.Second,
 	}
