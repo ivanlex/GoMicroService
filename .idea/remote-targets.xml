@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteTargetsManager">
+    <targets>
+      <target name="WSL - Ubuntu-20.04" type="wsl">
+        <config>
+          <option name="distributionMsId" value="Ubuntu-20.04" />
+          <option name="projectRootOnTarget" value="/mnt/d/JetBrains/GoLand 2021.2.3/jbr/bin&#10;/GoMicroService" />
+        </config>
+        <ContributedStateBase type="GoLanguageRuntime">
+          <config>
+            <option name="goPath" value="/home/developer/go" />
+            <option name="goRoot" value="/usr/bin/go" />
+            <option name="goVersion" value="go1.13.8 linux/amd64" />
+          </config>
+        </ContributedStateBase>
+      </target>
+    </targets>
+  </component>
+</project>
